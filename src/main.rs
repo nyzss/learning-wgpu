@@ -24,6 +24,8 @@ struct State {
     index_buffer: wgpu::Buffer,
 
     num_indices: u32,
+
+    set_current_shape: bool,
 }
 
 #[repr(C)]
@@ -80,8 +82,41 @@ const VERTICES: &[Vertex] = &[
 
 const INDICES: &[u16] = &[0, 1, 4, 1, 2, 4, 2, 3, 4, /* padding */ 0];
 
+const SECOND_VERTICES: &[Vertex] = &[
+    Vertex {
+        position: [-0.4868241, 0.89240386, 0.0],
+        color: [0.2, 0.0, 0.5],
+    }, // A
+    Vertex {
+        position: [-0.49513406, 3.06958647, 0.0],
+        color: [0.7, 0.0, 0.5],
+    }, // B
+    Vertex {
+        position: [-0.21918549, -0.44939706, 0.0],
+        color: [0.5, 0.0, 0.9],
+    }, // C
+    Vertex {
+        position: [0.35966998, -0.3473291, 0.0],
+        color: [0.5, 0.0, 0.5],
+    }, // D
+    Vertex {
+        position: [0.44147372, 0.2347359, 0.0],
+        color: [0.5, 0.2, 0.5],
+    }, // E
+];
+
+const SECOND_INDICES: &[u16] = &[0, 1, 4, 1, 2, 4, 2, 3, 4, /* padding */ 0];
+
 impl State {
     async fn new(window: &Window) -> Self {
+        let mut set_current_shape: bool = false;
+
+        if set_current_shape {
+            println!("this is working {}", set_current_shape)
+        } else {
+            println!("this is probably not working {}", set_current_shape)
+        };
+
         let size = window.inner_size();
 
         let instance = wgpu::Instance::new(wgpu::BackendBit::PRIMARY);
@@ -168,13 +203,23 @@ impl State {
 
         let vertex_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
             label: Some("Vertex Buffer"),
-            contents: bytemuck::cast_slice(VERTICES),
+            contents: bytemuck::cast_slice(if set_current_shape {
+                SECOND_VERTICES
+            } else {
+                VERTICES
+            }),
+            // contents: bytemuck::cast_slice(VERTICES),
             usage: wgpu::BufferUsage::VERTEX,
         });
 
         let index_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
             label: Some("Index Buffer"),
-            contents: bytemuck::cast_slice(INDICES),
+            contents: bytemuck::cast_slice(if set_current_shape {
+                SECOND_INDICES
+            } else {
+                INDICES
+            }),
+            // contents: bytemuck::cast_slice(INDICES),
             usage: wgpu::BufferUsage::INDEX,
         });
 
@@ -194,6 +239,7 @@ impl State {
             index_buffer,
 
             num_indices,
+            set_current_shape,
         };
     }
 
@@ -276,6 +322,11 @@ fn main() {
                 match event {
                     WindowEvent::CloseRequested => *control_flow = ControlFlow::Exit,
                     WindowEvent::KeyboardInput { input, .. } => match input {
+                        KeyboardInput {
+                            state: ElementState::Pressed,
+                            virtual_keycode: Some(VirtualKeyCode::Space),
+                            ..
+                        } => state.set_current_shape = !state.set_current_shape,
                         KeyboardInput {
                             state: ElementState::Pressed,
                             virtual_keycode: Some(VirtualKeyCode::Escape),

@@ -1,6 +1,6 @@
-# learning-wgpu
+# learning-wgpu and rust
 
-i'm trying to learn wgpu
+i'm trying to learn wgpu and rust
 
 nothing special about this, i'd recommend [this](https://sotrh.github.io/learn-wgpu) resource it's really good
 
